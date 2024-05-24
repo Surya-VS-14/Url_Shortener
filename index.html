@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+
+    <style>
+        /*Added CSS for better UI*/
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .result a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        
+        <label for="longURL">Enter a long URL:</label>
+        <input type="text" id="longURL" placeholder="Enter URL...">
+        <button onclick="shortenURL()">Shorten URL</button>
+        
+        <div id="shortenedURL" class="result"></div>
+        
+        <label for="shortenedURLInput">Enter the shortened URL:</label>
+        <input type="text" id="shortenedURLInput" placeholder="Enter shortened URL...">
+        <button onclick="getOriginalLink()">Get Original Link</button>
+        <div id="originalLink" class="result"></div>
+    </div>
+    
+    <script>
+        // Object to store mappings between short codes and long URLs
+        const urlDatabase = {};
+
+        // Function to generate a random string for the short code
+        function generateShortCode(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let shortCode = '';
+            for (let i = 0; i < length; i++) {
+                shortCode += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return shortCode;
+        }
+
+        // Function to encode long URL to a shortened version
+        function encodeURL(longURL, length = 6) {
+            let shortCode;
+            do {
+                shortCode = generateShortCode(length);
+            } while (urlDatabase[shortCode]); // Ensure short code is unique
+            urlDatabase[shortCode] = longURL;
+            return `https://short.url/${shortCode}`;
+        }
+
+        // Function to display shortened URL
+        function displayShortenedURL(shortURL) {
+            document.getElementById('shortenedURL').innerHTML = `<strong>Shortened URL:</strong> <a href="${shortURL}" target="_blank">${shortURL}</a>`;
+        }
+
+        // Function to shorten URL and display result
+        function shortenURL() {
+            const longURL = document.getElementById('longURL').value;
+            const shortURL = encodeURL(longURL);
+            displayShortenedURL(shortURL);
+        }
+
+        // Function to get original URL from shortened URL
+        function getOriginalURL(shortURL) {
+            const shortCode = shortURL.split('/').pop();
+            return urlDatabase[shortCode];
+        }
+
+        // Function to decode short URL and redirect to original long URL
+        function getOriginalLink() {
+            const shortURL = document.getElementById('shortenedURLInput').value;
+            const originalURL = getOriginalURL(shortURL);
+            if (originalURL) {
+                document.getElementById('originalLink').innerHTML = `<strong>Original Link:</strong> <a href="${originalURL}" target="_blank">${originalURL}</a>`;
+            } else {
+                document.getElementById('originalLink').innerHTML = '<strong>Invalid short URL</strong>';
+            }
+        }
+    </script>
+</body>
+</html>
